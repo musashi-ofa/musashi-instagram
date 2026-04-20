@@ -455,14 +455,17 @@ function renderOutput(text, clinic) {
     </div>`;
   });
 
-  const canvaUrl = selFmt === 'リール'
-    ? 'https://www.canva.com/design/new?type=InstagramReel'
-    : 'https://www.canva.com/design/new?type=SocialPost';
+  const canvaSearchUrl = selFmt === 'リール'
+    ? 'https://www.canva.com/search/templates?q=instagram+reel'
+    : 'https://www.canva.com/search/templates?q=instagram+%E6%8A%95%E7%A8%BF';
 
   html += `<div class="out-card">
     <div class="out-label">Canvaで編集する</div>
-    <p style="font-size:13px;color:var(--text-sub);margin-bottom:8px;">クリックするとCanvaが開きます。テンプレートを複製して上記テキストを貼り付けてください。</p>
-    <a href="${canvaUrl}" target="_blank" class="canva-btn">Canvaで開く →</a>
+    <p style="font-size:13px;color:var(--text-sub);margin-bottom:8px;">クリックするとCanvaのテンプレート検索が開きます。好みのテンプレートを選んで上記テキストを貼り付けてください。</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="${canvaSearchUrl}" target="_blank" rel="noopener" class="canva-btn">Canvaでテンプレートを探す →</a>
+      <a href="https://www.canva.com" target="_blank" rel="noopener" class="canva-btn" style="background:#555;">Canvaトップを開く →</a>
+    </div>
   </div>`;
 
   area.innerHTML = html;
