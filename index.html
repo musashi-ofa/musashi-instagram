@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>むさし整骨院 Instagram投稿作成ツール</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #1D9E75;
+      --green-dark: #0F6E56;
+      --green-light: #E1F5EE;
+      --green-border: #5DCAA5;
+      --green-text: #0F6E56;
+      --coral: #D85A30;
+      --gray-bg: #F7F7F5;
+      --card-bg: #FFFFFF;
+      --border: rgba(0,0,0,0.12);
+      --border-hover: rgba(0,0,0,0.25);
+      --text: #1a1a1a;
+      --text-sub: #666;
+      --radius: 10px;
+      --radius-lg: 14px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+      background: var(--gray-bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+    }
+
+    .container { max-width: 620px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 28px; }
+    header h1 { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    header p { font-size: 13px; color: var(--text-sub); }
+    .logo-badge {
+      display: inline-block; background: var(--green); color: white;
+      font-size: 11px; font-weight: 600; padding: 3px 10px;
+      border-radius: 20px; margin-bottom: 10px; letter-spacing: 0.05em;
+    }
+
+    .section-label {
+      font-size: 11px; font-weight: 600; color: var(--text-sub);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin: 20px 0 8px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin-bottom: 10px;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block; font-size: 13px; color: var(--text-sub);
+      margin-bottom: 6px; font-weight: 500;
+    }
+    .req { color: var(--coral); margin-left: 2px; }
+
+    .field input, .field textarea {
+      width: 100%; padding: 9px 13px; font-size: 14px;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--gray-bg);
+      color: var(--text);
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .field input:focus, .field textarea:focus {
+      outline: none; border-color: var(--green); background: #fff;
+    }
+    .field textarea { resize: vertical; min-height: 80px; line-height: 1.65; }
+
+    .char-count { font-size: 11px; color: var(--text-sub); text-align: right; margin-top: 3px; }
+
+    .mic-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; font-size: 12px; font-weight: 500;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff; color: var(--text-sub);
+      cursor: pointer; margin-top: 6px; transition: all 0.15s;
+    }
+    .mic-btn:hover { border-color: var(--border-hover); }
+    .mic-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .mic-btn.recording { background: #FCEBEB; color: #A32D2D; border-color: #F09595; }
+
+    .toggle-row { display: flex; gap: 8px; }
+    .tbtn {
+      flex: 1; padding: 9px 8px; font-size: 13px; font-weight: 500;
+      border: 0.5px solid var(--border); border-radius: var(--radius);
+      background: var(--gray-bg); color: var(--text-sub);
+      cursor: pointer; text-align: center; transition: all 0.15s;
+    }
+    .tbtn.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      padding: 5px 13px; font-size: 12px; font-weight: 500;
+      border: 0.5px solid var(--border); border-radius: 20px;
+      background: var(--gray-bg); color: var(--text-sub);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .tag.active { background: var(--green-light); color: var(--green-text); border-color: var(--green-border); }
+
+    .divider { border: none; border-top: 0.5px solid var(--border); margin: 14px 0; }
+
+    .gen-btn {
+      width: 100%; padding: 14px; font-size: 15px; font-weight: 600;
+      background: var(--green); color: #fff; border: none;
+      border-radius: var(--radius-lg); cursor: pointer;
+      transition: background 0.15s; margin-top: 6px;
+      letter-spacing: 0.02em;
+    }
+    .gen-btn:hover { background: var(--green-dark); }
+    .gen-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* output */
+    #output-area { margin-top: 16px; }
+    .out-card {
+      background: var(--card-bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin-bottom: 10px;
+    }
+    .out-label {
+      font-size: 11px; font-weight: 600; color: var(--text-sub);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .out-text {
+      font-size: 14px; color: var(--text);
+      line-height: 1.75; white-space: pre-wrap;
+    }
+    .out-text.hashtag { color: var(--green-text); }
+    .copy-btn {
+      margin-top: 8px; padding: 5px 12px; font-size: 12px;
+      border: 0.5px solid var(--border); border-radius: var(--radius);
+      background: var(--gray-bg); color: var(--text-sub);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .copy-btn:hover { border-color: var(--border-hover); }
+    .copy-btn.copied { background: var(--green-light); color: var(--green-text); border-color: var(--green-border); }
+
+    .canva-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; font-size: 14px; font-weight: 600;
+      background: #7B2FF7; color: #fff; border: none;
+      border-radius: var(--radius); cursor: pointer;
+      text-decoration: none; transition: background 0.15s; margin-top: 8px;
+    }
+    .canva-btn:hover { background: #6320d4; }
+
+    .loading {
+      display: flex; align-items: center; gap: 10px;
+      padding: 20px; color: var(--text-sub); font-size: 14px;
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green); animation: pulse 1.2s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse { 0%,80%,100%{opacity:0.25}40%{opacity:1} }
+
+    .error-box {
+      background: #FCEBEB; border: 0.5px solid #F09595;
+      border-radius: var(--radius); padding: 14px;
+      font-size: 13px; color: #A32D2D; line-height: 1.65;
+    }
+
+    .success-badge {
+      display: inline-block; background: var(--green-light); color: var(--green-text);
+      font-size: 12px; font-weight: 600; padding: 3px 10px;
+      border-radius: 20px; margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo-badge">むさし整骨院グループ</div>
+    <h1>Instagram 投稿作成ツール</h1>
+    <p>フォームに入力して「作成する」を押すだけ</p>
+  </header>
+
+  <!-- 基本情報 -->
+  <div class="section-label">基本情報</div>
+  <div class="card">
+    <div class="field">
+      <label>院名<span class="req">*</span></label>
+      <input type="text" id="clinic" placeholder="むさし整骨院 〇〇院" />
+    </div>
+    <div class="field">
+      <label>担当者名</label>
+      <input type="text" id="staff" placeholder="任意" />
+    </div>
+  </div>
+
+  <!-- 投稿設定 -->
+  <div class="section-label">投稿設定</div>
+  <div class="card">
+    <div class="field">
+      <label>投稿タイプ<span class="req">*</span></label>
+      <div class="tag-row" id="type-tags">
+        <div class="tag active" data-val="症状別ケア">症状別ケア</div>
+        <div class="tag" data-val="改善事例">改善事例</div>
+        <div class="tag" data-val="季節のケア">季節のケア</div>
+        <div class="tag" data-val="キャンペーン">キャンペーン</div>
+        <div class="tag" data-val="その他">その他</div>
+      </div>
+    </div>
+    <hr class="divider" />
+    <div class="field">
+      <label>フォーマット<span class="req">*</span></label>
+      <div class="toggle-row">
+        <div class="tbtn active" id="btn-feed" onclick="setFmt('フィード（カルーセル）')">フィード（カルーセル）</div>
+        <div class="tbtn" id="btn-reel" onclick="setFmt('リール')">リール</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- コンテンツ詳細 -->
+  <div class="section-label">コンテンツ詳細</div>
+  <div class="card">
+    <div class="field">
+      <label>テーマ・伝えたいこと<span class="req">*</span></label>
+      <textarea id="theme" placeholder="例：梅雨時期の腰痛ケア、産後の骨盤矯正など" oninput="uc(this,'tc',150)"></textarea>
+      <div class="char-count" id="tc">0 / 150</div>
+      <button class="mic-btn" id="mic-theme" onclick="voice('theme','mic-theme')">
+        <span class="mic-dot"></span>音声入力
+      </button>
+    </div>
+    <div class="field">
+      <label>ターゲット</label>
+      <input type="text" id="target" placeholder="例：30〜40代女性、デスクワーク中心の方など" />
+    </div>
+    <div class="field">
+      <label>その他メモ・アピールポイント</label>
+      <textarea id="memo" placeholder="特徴的な施術・機器・キャンペーン内容など" style="min-height:60px;" oninput="uc(this,'mc',150)"></textarea>
+      <div class="char-count" id="mc">0 / 150</div>
+      <button class="mic-btn" id="mic-memo" onclick="voice('memo','mic-memo')">
+        <span class="mic-dot"></span>音声入力
+      </button>
+    </div>
+  </div>
+
+  <button class="gen-btn" id="gen-btn" onclick="generate()">投稿を作成する</button>
+  <div id="output-area"></div>
+
+</div>
+
+<script>
+let selType = '症状別ケア';
+let selFmt = 'フィード（カルーセル）';
+let activeRec = null;
+
+document.querySelectorAll('#type-tags .tag').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('#type-tags .tag').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    selType = t.dataset.val;
+  };
+});
+
+function setFmt(f) {
+  selFmt = f;
+  document.getElementById('btn-feed').classList.toggle('active', f === 'フィード（カルーセル）');
+  document.getElementById('btn-reel').classList.toggle('active', f === 'リール');
+}
+
+function uc(el, id, max) {
+  document.getElementById(id).textContent = el.value.length + ' / ' + max;
+}
+
+function voice(fieldId, btnId) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('このブラウザは音声入力に対応していません。Chromeをお試しください。'); return; }
+  const btn = document.getElementById(btnId);
+  if (btn.classList.contains('recording')) {
+    if (activeRec) { try { activeRec.stop(); } catch(e){} }
+    return;
+  }
+  const rec = new SR();
+  rec.lang = 'ja-JP'; rec.interimResults = false;
+  activeRec = rec;
+  btn.classList.add('recording');
+  btn.innerHTML = '<span class="mic-dot"></span>録音中…（もう一度押すと停止）';
+  rec.onresult = e => {
+    const field = document.getElementById(fieldId);
+    field.value = (field.value ? field.value + ' ' : '') + e.results[0][0].transcript;
+    uc(field, fieldId === 'theme' ? 'tc' : 'mc', 150);
+  };
+  rec.onend = () => {
+    btn.classList.remove('recording');
+    btn.innerHTML = '<span class="mic-dot"></span>音声入力';
+    activeRec = null;
+  };
+  rec.start();
+}
+
+function buildPrompt(clinic, staff, target, memo) {
+  const theme = document.getElementById('theme').value.trim();
+
+  const carouselInst = `フィードカルーセル投稿（複数枚スライド）として、以下の5枚分のCanvaテキスト素材と、投稿キャプション・ハッシュタグを作成してください。
+
+## スライド1：表紙
+見出し：「こんな症状はありませんか？」に関連したキャッチコピー（20字以内）
+サブ：具体的な症状を2〜3個箇条書き（各15字以内）
+
+## スライド2：原因解説
+見出し：なぜその症状が起きるのか（20字以内）
+本文：原因を2〜3行でわかりやすく（各30字以内）
+
+## スライド3：当院の施術アプローチ
+見出し：${clinic}ではこんなケアをします（表現は適宜調整）
+本文：施術の流れや特徴を2〜3点（各30字以内）
+
+## スライド4：特徴・強み
+見出し：当院ならではのアプローチ（20字以内）
+本文：特徴的なポイントを2〜3点（各30字以内）
+
+## スライド5：クロージング
+見出し：やさしい呼びかけ文（20字以内）
+サブ：来院を促すひと言（30字以内）
+院名：${clinic}
+
+---
+
+## キャプション（本文）
+200〜350字。共感や問いかけで始め、スライドの内容に沿った流れで、やさしいCTAで締める。
+
+## ハッシュタグ
+#むさし整骨院 #整骨院 #地域密着 を必ず含め、テーマ別5〜8個追加。`;
+
+  const reelInst = `リール投稿として台本とキャプション・ハッシュタグを作成してください。
+
+## リール台本
+【冒頭 0〜3秒】（引きになる一言テロップ）
+【中盤〜25秒】（3〜4ステップのテロップ構成）
+【締め〜30秒】（CTA・院名）
+
+## キャプション（本文）
+150〜250字。テンポよく。
+
+## ハッシュタグ
+#むさし整骨院 #整骨院 #地域密着 を必ず含め、テーマ別5〜8個追加。`;
+
+  return `あなたは「むさし整骨院グループ」のInstagram投稿制作アシスタントです。
+
+【ブランドルール】
+- 患者さんに寄り添うやさしい言葉遣い
+- 専門用語はわかりやすく補足
+- 堅すぎず信頼感のある文体
+
+【絶対NG表現】
+「治る」「完治」「治癒」「No.1」「最高」「最良」「〜に効く」「効果がある」「必ず」「絶対」、他院との比較
+
+【代替表現例】
+「〜のお悩みに対応しています」「〜でお困りの方へ」「〜のケアをサポートします」
+
+---
+【院名】${clinic}
+【担当者名】${staff || 'なし'}
+【投稿タイプ】${selType}
+【フォーマット】${selFmt}
+【テーマ・伝えたいこと】${theme}
+【ターゲット】${target || '特定なし'}
+【その他メモ・アピールポイント】${memo || 'なし'}
+---
+
+${selFmt === 'リール' ? reelInst : carouselInst}`;
+}
+
+async function generate() {
+  const clinic = document.getElementById('clinic').value.trim();
+  const theme = document.getElementById('theme').value.trim();
+  if (!clinic) { alert('院名を入力してください'); return; }
+  if (!theme) { alert('テーマ・伝えたいことを入力してください'); return; }
+
+  const staff = document.getElementById('staff').value.trim();
+  const target = document.getElementById('target').value.trim();
+  const memo = document.getElementById('memo').value.trim();
+
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true; btn.textContent = '生成中...';
+
+  const area = document.getElementById('output-area');
+  area.innerHTML = `<div class="out-card">
+    <div class="loading">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <span>投稿を生成しています...</span>
+    </div>
+  </div>`;
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: buildPrompt(clinic, staff, target, memo) })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'エラーが発生しました');
+
+    renderOutput(data.text, clinic);
+  } catch(e) {
+    area.innerHTML = `<div class="out-card"><div class="error-box">エラーが発生しました：${e.message}<br>しばらくしてから再度お試しください。</div></div>`;
+  }
+
+  btn.disabled = false; btn.textContent = '投稿を作成する';
+}
+
+function renderOutput(text, clinic) {
+  const area = document.getElementById('output-area');
+
+  const sections = [];
+
+  if (selFmt === 'フィード（カルーセル）') {
+    for (let i = 1; i <= 5; i++) {
+      const labels = ['表紙', '原因解説', '施術アプローチ', '特徴・強み', 'クロージング'];
+      const m = text.match(new RegExp(`##\\s*スライド${i}[^\\n]*\\n([\\s\\S]*?)(?=##\\s*スライド${i+1}|##\\s*キャプション|$)`));
+      if (m) sections.push({ title: `スライド${i}：${labels[i-1]}`, id: `s${i}`, content: m[1].trim() });
+    }
+  } else {
+    const m = text.match(/##\s*リール台本[^\n]*\n([\s\S]*?)(?=##\s*キャプション|$)/);
+    if (m) sections.push({ title: 'リール台本', id: 'script', content: m[1].trim() });
+  }
+
+  const capM = text.match(/##\s*キャプション[^\n]*\n([\s\S]*?)(?=##\s*ハッシュタグ|$)/);
+  if (capM) sections.push({ title: 'キャプション（本文）', id: 'cap', content: capM[1].trim() });
+
+  const hashM = text.match(/##\s*ハッシュタグ[^\n]*\n([\s\S]*?)(?=##|$)/);
+  if (hashM) sections.push({ title: 'ハッシュタグ', id: 'hash', content: hashM[1].trim(), isHash: true });
+
+  if (!sections.length) sections.push({ title: '生成結果', id: 'all', content: text });
+
+  let html = `<div style="margin-bottom:6px;"><span class="success-badge">生成完了</span></div>`;
+
+  sections.forEach(s => {
+    html += `<div class="out-card">
+      <div class="out-label">${s.title}</div>
+      <div class="out-text${s.isHash ? ' hashtag' : ''}" id="${s.id}">${esc(s.content)}</div>
+      <button class="copy-btn" onclick="copyText('${s.id}',this)">コピー</button>
+    </div>`;
+  });
+
+  const canvaUrl = selFmt === 'リール'
+    ? 'https://www.canva.com/design/new?type=InstagramReel'
+    : 'https://www.canva.com/design/new?type=SocialPost';
+
+  html += `<div class="out-card">
+    <div class="out-label">Canvaで編集する</div>
+    <p style="font-size:13px;color:var(--text-sub);margin-bottom:8px;">クリックするとCanvaが開きます。テンプレートを複製して上記テキストを貼り付けてください。</p>
+    <a href="${canvaUrl}" target="_blank" class="canva-btn">Canvaで開く →</a>
+  </div>`;
+
+  area.innerHTML = html;
+  area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function copyText(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).innerText).then(() => {
+    btn.textContent = 'コピー完了！';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+</script>
+</body>
+</html>
